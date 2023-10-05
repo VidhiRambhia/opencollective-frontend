@@ -10,6 +10,10 @@ for i in range(10):
   t1p.append(int(splitresult[1].split(",")[0]))
   t2p.append(int(splitresult[2].split(",")[0]))
 
+# t1 -> Test 1 of the spec file
+# t2 -> Test 2 of the spec file
+# c -> Cypress
+# p -> Playwright
 # t1c = [2486, 2116, 2156, 2017, 2018, 2106, 2060, 1899, 2108, 2283]
 # t2c = [2018, 2120, 2037, 2031, 2135, 2074, 2292, 2225, 2141, 2031]
 #
