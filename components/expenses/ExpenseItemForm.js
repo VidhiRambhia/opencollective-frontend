@@ -3,15 +3,12 @@ import PropTypes from 'prop-types';
 import { FastField, Field, useFormikContext } from 'formik';
 import { escape, get, isEmpty, pick, unescape } from 'lodash';
 import Lottie from 'lottie-react';
-import { AlertTriangle } from 'lucide-react';
 import { defineMessages, FormattedMessage, useIntl } from 'react-intl';
 import { isURL } from 'validator';
 
 import expenseTypes from '../../lib/constants/expenseTypes';
-import { formatValueAsCurrency } from '../../lib/currency-utils';
 import { createError, ERROR } from '../../lib/errors';
 import { formatFormErrorMessage, requireFields } from '../../lib/form-utils';
-import { cn } from '../../lib/utils';
 import { attachmentDropzoneParams } from './lib/attachments';
 import { expenseItemsMustHaveFiles } from './lib/items';
 import { checkExpenseItemCanBeSplit, updateExpenseFormWithUploadResult } from './lib/ocr';
@@ -27,7 +24,6 @@ import StyledInput from '../StyledInput';
 import StyledInputAmount from '../StyledInputAmount';
 import StyledInputField from '../StyledInputField';
 import { Span } from '../Text';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/Tooltip';
 
 import { ExpenseItemDescriptionHint } from './ItemDescriptionHint';
 import { SplitExpenseItemsModal } from './SplitExpenseItemsModal';
@@ -122,37 +118,6 @@ const AttachmentLabel = () => (
   </Span>
 );
 
-const WithOCRComparisonWarning = ({ comparison, formatValue, children, mrClass = 'mr-10' }) => (
-  <div className="relative">
-    {children}
-    {Boolean(comparison?.hasMismatch) && (
-      <div className={cn('absolute right-0 top-0 mt-[9px]', mrClass)}>
-        <Tooltip>
-          <TooltipTrigger>
-            <AlertTriangle size={16} color="#CB9C03" />
-          </TooltipTrigger>
-          <TooltipContent>
-            <FormattedMessage
-              defaultMessage="This value does not match the one scanned from the document ({value})"
-              values={{ value: formatValue ? formatValue(comparison.ocrValue) : comparison.ocrValue.toString() }}
-            />
-          </TooltipContent>
-        </Tooltip>
-      </div>
-    )}
-  </div>
-);
-
-WithOCRComparisonWarning.propTypes = {
-  children: PropTypes.node,
-  mrClass: PropTypes.string,
-  formatValue: PropTypes.func,
-  comparison: PropTypes.shape({
-    hasMismatch: PropTypes.bool,
-    ocrValue: PropTypes.any,
-  }),
-};
-
 /**
  * Form for a single attachment. Must be used with Formik.
  */
@@ -174,7 +139,6 @@ const ExpenseItemForm = ({
   onCurrencyChange,
   isInvoice,
   hasOCRFeature,
-  ocrComparison,
 }) => {
   const intl = useIntl();
   const [showSplitConfirm, setShowSplitConfirm] = React.useState(false);
@@ -282,15 +246,13 @@ const ExpenseItemForm = ({
                 {inputProps => (
                   <Field maxHeight={39} {...inputProps}>
                     {({ field }) => (
-                      <WithOCRComparisonWarning comparison={ocrComparison?.['incurredAt']}>
-                        <StyledInput
-                          {...inputProps}
-                          {...field}
-                          py="7px"
-                          width="100%"
-                          value={typeof field.value === 'string' ? field.value.split('T')[0] : field.value}
-                        />
-                      </WithOCRComparisonWarning>
+                      <StyledInput
+                        {...inputProps}
+                        {...field}
+                        width="100%"
+                        warning="Hello World"
+                        value={typeof field.value === 'string' ? field.value.split('T')[0] : field.value}
+                      />
                     )}
                   </Field>
                 )}
@@ -313,24 +275,19 @@ const ExpenseItemForm = ({
               {inputProps => (
                 <Field name={inputProps.name}>
                   {({ field, form: { setFieldValue } }) => (
-                    <WithOCRComparisonWarning
-                      comparison={ocrComparison?.['amount']}
-                      formatValue={amount => formatValueAsCurrency(amount, { locale: intl.locale })}
-                    >
-                      <StyledInputAmount
-                        {...field}
-                        {...inputProps}
-                        currency={currency}
-                        currencyDisplay="CODE"
-                        min={isOptional ? undefined : 1}
-                        maxWidth="100%"
-                        placeholder="0.00"
-                        onChange={(value, e) => setFieldValue(e.target.name, value)}
-                        onCurrencyChange={onCurrencyChange}
-                        hasCurrencyPicker={hasMultiCurrency || !currency} // Makes sure user can re-select currency after a reset
-                        availableCurrencies={availableCurrencies}
-                      />
-                    </WithOCRComparisonWarning>
+                    <StyledInputAmount
+                      {...field}
+                      {...inputProps}
+                      currency={currency}
+                      currencyDisplay="CODE"
+                      min={isOptional ? undefined : 1}
+                      maxWidth="100%"
+                      placeholder="0.00"
+                      onChange={(value, e) => setFieldValue(e.target.name, value)}
+                      onCurrencyChange={onCurrencyChange}
+                      hasCurrencyPicker={hasMultiCurrency || !currency} // Makes sure user can re-select currency after a reset
+                      availableCurrencies={availableCurrencies}
+                    />
                   )}
                 </Field>
               )}
@@ -417,7 +374,6 @@ ExpenseItemForm.propTypes = {
   }).isRequired,
   editOnlyDescriptiveInfo: PropTypes.bool,
   itemIdx: PropTypes.number.isRequired,
-  ocrComparison: PropTypes.object,
 };
 
 ExpenseItemForm.defaultProps = {

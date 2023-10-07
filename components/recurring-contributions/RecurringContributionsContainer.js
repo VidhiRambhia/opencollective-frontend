@@ -77,16 +77,16 @@ const RecurringContributionsContainer = ({
   displayFilters,
   ...props
 }) => {
-  const isAdminOrRoot = Boolean(LoggedInUser?.isAdminOfCollective(account) || LoggedInUser?.isRoot);
+  const isAdmin = Boolean(LoggedInUser?.isAdminOfCollective(account));
   const intl = useIntl();
   const [editingContributionId, setEditingContributionId] = React.useState();
   const [filter, setFilter] = React.useState(FILTERS.ACTIVE);
   const displayedRecurringContributions = React.useMemo(() => {
     const filteredContributions = filterContributions(recurringContributions?.nodes || [], filter);
-    return isAdminOrRoot
+    return isAdmin
       ? filteredContributions
       : filteredContributions.filter(contrib => contrib.status !== ORDER_STATUS.ERROR);
-  }, [recurringContributions, filter, isAdminOrRoot]);
+  }, [recurringContributions, filter, isAdmin]);
 
   // Reset edit when changing filters and contribution is not in the list anymore
   React.useEffect(() => {
@@ -131,12 +131,12 @@ const RecurringContributionsContainer = ({
                 contribution={contribution}
                 position="relative"
                 account={account}
-                isAdmin={isAdminOrRoot}
+                isAdmin={isAdmin}
                 isEditing={contribution.id === editingContributionId}
-                canEdit={isAdminOrRoot && !editingContributionId}
+                canEdit={isAdmin && !editingContributionId}
                 onEdit={() => setEditingContributionId(contribution.id)}
                 onCloseEdit={() => setEditingContributionId(null)}
-                showPaymentMethod={isAdminOrRoot}
+                showPaymentMethod={isAdmin}
                 data-cy="recurring-contribution-card"
               />
             </CollectiveCardContainer>

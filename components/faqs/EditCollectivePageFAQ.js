@@ -27,7 +27,7 @@ const EditCollectivePageFAQ = ({ defaultOpen, ...props }) => (
       <Content>
         <FormattedMessage
           id="EditCollectivePageFAQ.EditHiddenDetails"
-          defaultMessage="No. To edit a section, you need to make it visible."
+          defaultMessage="No. To edit a section, you need to make it to visible."
         />
       </Content>
     </Entry>
